@@ -1,0 +1,72 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv:
+  - .env
+
+env:
+  VAULT_ADDR: https://vault-ui.vault.svc/
+
+vars:
+  set_config: |
+    export namespace=${TF_VAR_client_test_kubernetes_namespace}
+    export KUBECONFIG=${CLIENT_KUBECONFIG}
+
+tasks:
+  clear:
+    internal: true
+    cmds: [clear]
+  clean:
+    cmds: [rm -rf .terraform* planfile terraform.tfstate* out.json jit.auto.tfvars]
+  tf_init:
+    deps: [clear]
+    cmds: [terraform init]
+  tf_plan:
+    # deps: [tf_init]
+    cmds:
+      - |
+        # run terraform plan
+        terraform plan -out=planfile
+  tf_apply:
+    cmds:
+      - task: tf_plan
+      - terraform apply "planfile"
+  tf_destroy:
+    deps: [clear]
+    cmds:
+      - terraform destroy -auto-approve
+      - task: clean
+  default:
+    deps: [tf_plan]
+  status:
+    cmds:
+      - vault status | jq
+
+  read_well_known:
+    vars:
+      provider: '{{ default .provider "my-provider" }}'
+    cmds:
+      - |
+        vault read identity/oidc/provider/{{ .provider }}/.well-known/openid-configuration | jq
+  run_oidc_client:
+    desc: "Read client secret"
+    vars:
+      client_id: '{{ default .client_id "sample-client" }}'
+      provider: '{{ default .provider "my-provider" }}'
+    cmds:
+      - |
+        res=$(vault read -format=json identity/oidc/client/{{ .client_id }} | jq)
+        client_id=$(echo ${res} | jq  '.data.client_id' -r)
+        client_secret=$(echo ${res} | jq  '.data.client_secret' -r)
+        echo "client_id: ${client_id}"
+        echo "client_secret: ${client_secret}"
+        echo res:
+        echo ${res} | jq
+
+        # this is the build of https://github.com/dexidp/dex/tree/master/examples/example-app
+        issuer=${VAULT_ADDR}/v1/identity/oidc/provider/{{ .provider }}
+        ~/tmp/dex/examples/oidc-client \
+          --issuer=${issuer} \
+          --client-id=${client_id} \
+          --client-secret=${client_secret}

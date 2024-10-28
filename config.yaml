@@ -1,0 +1,59 @@
+
+entities:
+  bob:
+    policies:
+      - default
+    metadata: {}
+      # email: bob@barker.com
+  sir:
+    policies:
+      - default
+    metadata:
+      email: sir@smokesalot.com
+
+users:
+  bob:
+    password: barker
+  sir:
+    password: smokesalot
+
+groups:
+  admins:
+    entity_names:
+      - bob
+  chumps:
+    entity_names:
+      - sir
+
+oidc:
+  clients:
+    sample-client:
+      # this should probably be a template for clients to expand
+      # think about dns names, etc to cover all regions
+      redirect_uris:
+        # oidc-client callback (dex example-app)
+        - "http://127.0.0.1:5555/callback"
+      allowed_groups:
+        - admins
+  providers:
+    my-provider:
+      clients:
+        - sample-client
+      scopes:
+        - debug
+        - groups
+  scopes:
+    debug:
+      description: debug claims
+      template: |
+        {
+          "debug": {
+            "entity_name": {{identity.entity.name}},
+            "email": {{identity.entity.metadata.email}},
+            "groups": {{identity.entity.groups.names}}
+          }
+        }
+    groups:
+      description: Vault OIDC Groups Scope
+      template: |
+        { "groups": {{identity.entity.groups.names}} }
