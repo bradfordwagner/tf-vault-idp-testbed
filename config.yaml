@@ -26,8 +26,6 @@ groups:
       - sir
 
 oidc:
-  auth:
-    enabled: true
   clients:
     sample-client:
       # this should probably be a template for clients to expand

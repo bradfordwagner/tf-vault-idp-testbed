@@ -2,12 +2,15 @@ provider "vault" {}
 
 locals {
   config = yamldecode(file("${path.module}/config.yaml"))
+  oidc = try(yamldecode(file("${path.module}/oidc.auth.yaml")), {
+    enabled = false
+  })
 }
 
 module "auth_backends" {
   source = "./modules/auth_backends"
   config = local.config
-  oidc   = var.oidc
+  oidc   = local.oidc
 }
 
 module "entities" {
