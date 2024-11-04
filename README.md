@@ -3,12 +3,13 @@
 ## Setup
 ```bash
 # create .env file - to be read by go-task
-cat <<EOF > .env
-export VAULT_ADDR=...
-export VAULT_FORMAT=json
-export CLIENT_KUBECONFIG=... # full path to kubeconfig
-export TF_VAR_client_test_kubernetes_namespace=...
-export IMAGE=... # threaded through to helm
+cat <<EOF > terraform.auto.tfvars
+oidc = {
+  client_id = "..."
+  client_secret = "..."
+  discovery_url = "https://login.microsoftonline.com/.../v2.0"
+  discovery_ca_file_path = "..."
+}
 EOF
 ```
 - `task tf_apply` - sets up vault policy against VAULT_ADDR, using the currently configured token. Tested with a naughty ROOT_TOKEN.
