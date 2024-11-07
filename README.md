@@ -10,6 +10,11 @@ client:
 discovery:
   url: https://login.microsoftonline.com/.../v2.0
   ca_file_path: ...
+roles:
+  admins:
+    idp_group: MY_GROUP
+    token_policies:
+      - default
 EOF
 ```
 - `task tf_apply` - sets up vault policy against VAULT_ADDR, using the currently configured token. Tested with a naughty ROOT_TOKEN.
