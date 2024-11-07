@@ -29,7 +29,7 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   role_type       = "oidc"
   # oidc_scopes        = var.oidc_scopes
   allowed_redirect_uris = [
-    "https://vault-ui.vault.svc/ui/vault/auth/oidc/oidc/callback"
+    "https://vault-ui.vault.svc/ui/vault/auth/oidc/oidc/callback",
   ]
   # token_ttl               = var.ldap_token_ttl
   # token_max_ttl           = var.ldap_token_max_ttl
