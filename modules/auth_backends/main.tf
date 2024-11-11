@@ -3,6 +3,10 @@ resource "vault_auth_backend" "userpass" {
   type = "userpass"
 }
 
+
+### TODO
+# go through this: https://developer.hashicorp.com/vault/docs/auth/jwt/oidc-providers/azuread
+
 resource "vault_jwt_auth_backend" "azure" {
     count = var.oidc.enabled ? 1 : 0
     path = "oidc"
@@ -11,6 +15,7 @@ resource "vault_jwt_auth_backend" "azure" {
     oidc_client_secret = var.oidc.client.secret
     oidc_discovery_ca_pem = file(var.oidc.discovery.ca_file_path)
     oidc_discovery_url = var.oidc.discovery.url
+    default_role = "admins"
     provider_config = {
         provider = "azure"
         fetch_groups = true
@@ -24,19 +29,38 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   for_each  = var.oidc.roles
   backend         = vault_jwt_auth_backend.azure[0].path
   role_name       = each.key
-  # groups_claim    = var.groups_claim
+  # groups_claim    = "roles"
+  groups_claim    = "groups"
   user_claim      = "upn"
-  role_type       = "oidc"
-  # oidc_scopes        = var.oidc_scopes
+  # oidc_scopes        = ["https://graph.microsoft.com/.default profile"]
+  oidc_scopes        = ["profile"]
   allowed_redirect_uris = [
     "https://vault-ui.vault.svc/ui/vault/auth/oidc/oidc/callback",
     "http://localhost:8250/oidc/callback",
     "https://localhost:8250/oidc/callback",
+    "https://vault.multitenant.hal.adpe-vault.extdns.dev.blackrock.com/ui/vault/auth/oidc/oidc/callback",
   ]
   # token_ttl               = var.ldap_token_ttl
   # token_max_ttl           = var.ldap_token_max_ttl
   # token_explicit_max_ttl  = var.ldap_token_max_ttl
   # token_policies    = lookup(local.oidc_role_to_policy, each.key, tolist([]))
   # token_bound_cidrs = lookup(local.oidc_role_to_cidr_restriction, each.key, tolist([]))
-  bound_claims = {"roles": each.value.idp_group}
+  
+  
+  # but how do i see the claims this is how we ensure that a user is a member of a group
+  # bound_claims = {"roles": each.value.idp_group}
+  verbose_oidc_logging = true
 }
+
+# resource "vault_identity_group_alias" "group_alias_azure" {
+#   for_each = var.oidc.roles
+#   name = replace(each.value.idp_group, "_", "-")
+#   mount_accessor = vault_jwt_auth_backend.azure[0].accessor
+#   canonical_id = vault_identity_group.external_groups_azure[each.key].id
+# }
+
+# resource "vault_identity_group" "external_groups_azure" {
+#    for_each  = var.oidc.roles
+#    name     = "${each.key}_azure"
+#    type     = "external"
+# }

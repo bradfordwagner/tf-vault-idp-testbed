@@ -6,7 +6,10 @@ dotenv:
   - .env
 
 env:
-  VAULT_ADDR: https://vault-ui.vault.svc
+  VAULT_ADDR:
+    sh: cat ~/.vault-addr
+  VAULT_TOKEN:
+    sh: cat ~/.vault-token
 
 tasks:
   clear:
