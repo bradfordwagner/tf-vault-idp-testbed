@@ -19,9 +19,11 @@ users:
 
 groups:
   admins:
+    type: external
     entity_names:
       - bob
   chumps:
+    type: internal
     entity_names:
       - sir
 

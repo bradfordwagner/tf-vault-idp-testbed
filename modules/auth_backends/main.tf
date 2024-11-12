@@ -52,15 +52,10 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   verbose_oidc_logging = true
 }
 
-# resource "vault_identity_group_alias" "group_alias_azure" {
-#   for_each = var.oidc.roles
-#   name = replace(each.value.idp_group, "_", "-")
-#   mount_accessor = vault_jwt_auth_backend.azure[0].accessor
-#   canonical_id = vault_identity_group.external_groups_azure[each.key].id
-# }
 
 # resource "vault_identity_group" "external_groups_azure" {
 #    for_each  = var.oidc.roles
 #    name     = "${each.key}_azure"
 #    type     = "external"
 # }
+

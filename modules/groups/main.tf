@@ -2,7 +2,7 @@
 resource "vault_identity_group" "admins" {
   for_each = var.config.groups
   name     = each.key
-  type     = "internal"
+  type     = each.value.type
   policies = ["default"]
   metadata = {
     version = "2"
