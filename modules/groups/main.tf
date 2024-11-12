@@ -3,7 +3,7 @@ resource "vault_identity_group" "groups" {
   for_each = var.config.groups
   name     = each.key
   type     = each.value.type
-  policies = ["default"]
+  policies = each.value.policies
   metadata = {
     version = "2"
   }

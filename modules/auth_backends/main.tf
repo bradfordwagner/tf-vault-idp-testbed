@@ -46,11 +46,3 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   # bound_claims = {"roles": each.value.idp_group}
   verbose_oidc_logging = true
 }
-
-
-# resource "vault_identity_group" "external_groups_azure" {
-#    for_each  = var.oidc.roles
-#    name     = "${each.key}_azure"
-#    type     = "external"
-# }
-

@@ -22,8 +22,12 @@ groups:
     type: external
     entity_names: []
       # - bob
+    policies:
+      - ui
   chumps:
     type: internal
+    policies:
+      - default
     entity_names:
       - sir
 
