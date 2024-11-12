@@ -7,6 +7,10 @@ locals {
   })
 }
 
+module "policies" {
+  source = "./modules/policies"
+}
+
 module "auth_backends" {
   source = "./modules/auth_backends"
   config = local.config

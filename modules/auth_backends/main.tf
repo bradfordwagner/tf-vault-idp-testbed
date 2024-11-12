@@ -43,7 +43,7 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   # token_ttl               = var.ldap_token_ttl
   # token_max_ttl           = var.ldap_token_max_ttl
   # token_explicit_max_ttl  = var.ldap_token_max_ttl
-  # token_policies    = lookup(local.oidc_role_to_policy, each.key, tolist([]))
+  token_policies    = each.value.token_policies
   # token_bound_cidrs = lookup(local.oidc_role_to_cidr_restriction, each.key, tolist([]))
   
   
