@@ -34,12 +34,7 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   user_claim      = "upn"
   # oidc_scopes        = ["https://graph.microsoft.com/.default profile"]
   oidc_scopes        = ["profile"]
-  allowed_redirect_uris = [
-    "https://vault-ui.vault.svc/ui/vault/auth/oidc/oidc/callback",
-    "http://localhost:8250/oidc/callback",
-    "https://localhost:8250/oidc/callback",
-    "https://vault.multitenant.hal.adpe-vault.extdns.dev.blackrock.com/ui/vault/auth/oidc/oidc/callback",
-  ]
+  allowed_redirect_uris = each.value.allowed_redirect_uris
   # token_ttl               = var.ldap_token_ttl
   # token_max_ttl           = var.ldap_token_max_ttl
   # token_explicit_max_ttl  = var.ldap_token_max_ttl
