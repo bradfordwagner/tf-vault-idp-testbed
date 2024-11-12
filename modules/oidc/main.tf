@@ -38,7 +38,8 @@ resource "vault_identity_oidc_provider" "provider" {
   for_each = var.config.oidc.providers
   name = each.key
   https_enabled = true
-  issuer_host = "vault-ui.vault.svc"
+  issuer_host = "vault.multitenant.hal.adpe-vault.extdns.dev.blackrock.com"
+  # issuer_host = "vault-ui.vault.svc"
   allowed_client_ids = [
     for client_name in each.value.clients : vault_identity_oidc_client.clients[client_name].client_id
   ]

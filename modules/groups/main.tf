@@ -1,5 +1,5 @@
 # # set up identity groups
-resource "vault_identity_group" "admins" {
+resource "vault_identity_group" "groups" {
   for_each = var.config.groups
   name     = each.key
   type     = each.value.type
