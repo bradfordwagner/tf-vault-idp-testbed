@@ -17,6 +17,7 @@ allowed_redirect_uris:
   - ...
   - ...
 
+default_role: my_oidc_role
 roles:
   my_oidc_role:
     group: ${vault_group}

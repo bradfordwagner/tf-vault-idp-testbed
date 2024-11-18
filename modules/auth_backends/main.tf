@@ -15,8 +15,7 @@ resource "vault_jwt_auth_backend" "azure" {
   oidc_client_secret    = var.oidc.client.secret
   oidc_discovery_ca_pem = file(var.oidc.discovery.ca_file_path)
   oidc_discovery_url    = var.oidc.discovery.url
-  # default_role          = "admins"
-  default_role = "chumps"
+  default_role          = var.oidc.default_role
   provider_config = {
     provider = "azure"
   }
