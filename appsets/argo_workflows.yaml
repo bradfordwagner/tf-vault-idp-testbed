@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: argo-workflows
+spec:
+  template:
+    metadata:
+      name: 'argo-workflows-{{ name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/argoproj/argo-helm.git
+        targetRevision: argo-workflows-0.42.7
+        path: charts/argo-workflows
+        helm:
+          # parameters:
+          #   - name: namespaces
+          #     value: "{{ values.namespaces }}"
+          releaseName: argo-workflows
+      destination:
+        name: '{{ name }}'
+        namespace: argo-workflows
+      syncPolicy:
+        automated:
+          prune: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
