@@ -17,7 +17,7 @@ users:
     password: smokesalot
 
 groups:
-  admins:
+  argo_admins:
     type: external
     entity_names: []
       # - bob
@@ -40,7 +40,7 @@ oidc:
         # oidc-client callback (dex example-app)
         - "http://127.0.0.1:5555/callback"
       allowed_groups:
-        - admins
+        - argo_admins
   providers:
     my-provider:
       clients:

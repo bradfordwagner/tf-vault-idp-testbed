@@ -17,6 +17,8 @@ spec:
           #   - name: namespaces
           #     value: "{{ values.namespaces }}"
           releaseName: argo-workflows
+          values: |
+
       destination:
         name: '{{ name }}'
         namespace: argo-workflows
