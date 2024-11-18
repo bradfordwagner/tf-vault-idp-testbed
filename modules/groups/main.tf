@@ -4,10 +4,8 @@ resource "vault_identity_group" "groups" {
   name     = each.key
   type     = each.value.type
   policies = each.value.policies
-  metadata = {
-    version = "2"
-  }
-  member_entity_ids = [
-    for entity_name in each.value.entity_names : var.entity_name_to_id[entity_name]
-  ]
+  # member_entity_ids = [
+  #   for entity_name in each.value.entity_names : var.entity_name_to_id[entity_name]
+  # ]
 }
+

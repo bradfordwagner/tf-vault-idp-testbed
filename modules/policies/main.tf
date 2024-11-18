@@ -1,5 +1,5 @@
 resource "vault_policy" "ui" {
-  name = "ui"
+  name   = "ui"
   policy = <<EOT
 path "*" {
   capabilities = ["read", "list"]

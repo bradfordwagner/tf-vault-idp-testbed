@@ -10,11 +10,17 @@ client:
 discovery:
   url: https://login.microsoftonline.com/.../v2.0
   ca_file_path: ...
+
+issuer_host: vault.multitenant.hal.adpe-vault.extdns.dev.blackrock.com
+
+allowed_redirect_uris:
+  - ...
+  - ...
+
 roles:
-  admins:
-    idp_group: MY_GROUP
-    token_policies:
-      - default
+  my_oidc_role:
+    group: ${vault_group}
+    idp_group: ${aad_group_name}
 EOF
 ```
 - `task tf_apply` - sets up vault policy against VAULT_ADDR, using the currently configured token. Tested with a naughty ROOT_TOKEN.

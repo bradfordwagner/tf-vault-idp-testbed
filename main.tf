@@ -39,10 +39,10 @@ module "groups" {
 }
 
 module "group_aliases" {
-  source           = "./modules/group_aliases"
-  config           = local.config
-  group_name_to_id = module.groups.group_name_to_id
-  oidc = local.oidc
+  source                = "./modules/group_aliases"
+  config                = local.config
+  group_name_to_id      = module.groups.group_name_to_id
+  oidc                  = local.oidc
   oidc_backend_accessor = module.auth_backends.oidc_backend_accessor
 }
 
@@ -50,4 +50,5 @@ module "oidc" {
   source           = "./modules/oidc"
   config           = local.config
   group_name_to_id = module.groups.group_name_to_id
+  vault_addr       = var.vault_addr
 }

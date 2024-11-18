@@ -1,4 +1,3 @@
-
 entities:
   bob:
     policies:
@@ -25,11 +24,12 @@ groups:
     policies:
       - ui
   chumps:
-    type: internal
+    type: external
     policies:
       - default
-    entity_names:
-      - sir
+      - chump
+    entity_names: []
+      # - sir
 
 oidc:
   clients:

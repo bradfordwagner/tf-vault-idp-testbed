@@ -15,10 +15,10 @@ resource "vault_identity_oidc_assignment" "assignments" {
 
 # configure oidc clients to access oidc provider
 resource "vault_identity_oidc_client" "clients" {
-  for_each      = var.config.oidc.clients
-  name          = each.key
-  redirect_uris = each.value.redirect_uris
-  assignments = [vault_identity_oidc_assignment.assignments[each.key].name]
+  for_each         = var.config.oidc.clients
+  name             = each.key
+  redirect_uris    = each.value.redirect_uris
+  assignments      = [vault_identity_oidc_assignment.assignments[each.key].name]
   id_token_ttl     = 2400
   access_token_ttl = 7200
 }
@@ -26,7 +26,7 @@ resource "vault_identity_oidc_client" "clients" {
 # allow custom configuration of scope claims
 # based on templates
 resource "vault_identity_oidc_scope" "scopes" {
-  for_each = var.config.oidc.scopes
+  for_each    = var.config.oidc.scopes
   name        = each.key
   template    = each.value.template
   description = each.value.description
@@ -34,15 +34,14 @@ resource "vault_identity_oidc_scope" "scopes" {
 
 # setup oidc provider
 resource "vault_identity_oidc_provider" "provider" {
-  depends_on = [ vault_identity_oidc_client.clients, vault_identity_oidc_scope.scopes ]
-  for_each = var.config.oidc.providers
-  name = each.key
+  depends_on    = [vault_identity_oidc_client.clients, vault_identity_oidc_scope.scopes]
+  for_each      = var.config.oidc.providers
+  name          = each.key
   https_enabled = true
-  issuer_host = "vault.multitenant.hal.adpe-vault.extdns.dev.blackrock.com"
-  # issuer_host = "vault-ui.vault.svc"
+  issuer_host   = replace(var.vault_addr, "https://", "")
   allowed_client_ids = [
     for client_name in each.value.clients : vault_identity_oidc_client.clients[client_name].client_id
   ]
-  scopes_supported =  each.value.scopes
+  scopes_supported = each.value.scopes
 }
 
