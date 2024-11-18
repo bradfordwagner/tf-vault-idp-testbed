@@ -33,7 +33,7 @@ tasks:
   tf_destroy:
     deps: [clear]
     cmds:
-      - terraform destroy -auto-approve
+      - terraform destroy -auto-approve -var vault_addr=${VAULT_ADDR}
   default:
     deps: [tf_plan]
   status:
