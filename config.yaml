@@ -42,7 +42,8 @@ kubernetes:
           - argo-workflows-server
         namespaces:
           - argo-workflows
-      token_policies: []
+      token_policies:
+        - oidc_client
 
 oidc:
   clients:
