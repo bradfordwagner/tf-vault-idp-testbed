@@ -1,0 +1,14 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: argo-workflows
+  namespace: argo-workflows
+spec:
+  method: kubernetes
+  mount: kubernetes/client_cluster
+  vaultConnectionRef: default
+  kubernetes:
+    role: argo_oidc_client
+    serviceAccount: argo-workflows-server
+    audiences:
+      - vault

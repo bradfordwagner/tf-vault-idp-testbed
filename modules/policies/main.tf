@@ -11,7 +11,7 @@ EOT
 resource "vault_policy" "oidc_client" {
   name   = "oidc_client"
   policy = <<EOT
-path "identity/oidc/provider/*" {
+path "identity/oidc/client/*" {
   capabilities = ["read"]
 }
 EOT
