@@ -31,6 +31,19 @@ groups:
     entity_names: []
       # - sir
 
+kubernetes:
+  cluster:
+    auth_endpoint: kubernetes/client_cluster
+    default_lease_ttl: 60s
+  roles:
+    argo_oidc_client:
+      kubernetes:
+        service_account_names:
+          - argo-workflows-server
+        namespaces:
+          - argo-workflows
+      token_policies: []
+
 oidc:
   clients:
     sample-client:

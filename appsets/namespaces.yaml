@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: argo-workflows-namespaces
+  name: namespaces
 spec:
   template:
     metadata:
-      name: 'argo-workflows-ns-{{ name }}'
+      name: 'namespaces-{{ name }}'
     spec:
       project: default
       source:
@@ -31,3 +31,4 @@ spec:
         values:
           namespaces: >
             argo-workflows
+            vault-auth

@@ -10,6 +10,8 @@ env:
     sh: cat ~/.vault-addr
   VAULT_TOKEN:
     sh: cat ~/.vault-root-token
+  KUBECONFIG:
+    sh: cat ~/.vault-kubeconfig
 
 tasks:
   clear:
@@ -46,6 +48,41 @@ tasks:
     cmds:
       - |
         vault read identity/oidc/provider/{{ .provider }}/.well-known/openid-configuration | jq
+  vault_auth:
+    desc: "Initialize vault auth on the target ~/.vault-kubeconfig"
+    vars:
+      cluster_id: client_cluster
+      auth_namespace: vault-auth
+      auth_sa: vault-auth
+      vault_auth_endpoint: auth/kubernetes/client_cluster/config
+    cmds:
+      - |
+        tmp_dir_root=$(mktemp -d)
+        echo tmp_dir_root=${tmp_dir_root}
+        cache_dir=${tmp_dir_root}/{{ .cluster_id }}
+        mkdir -p ${cache_dir}
+
+        kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 -d > "${cache_dir}/ca"
+        kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}' > "${cache_dir}/server"
+
+        # this is a hack to get local working
+        echo https://kubernetes.default.svc.cluster.local > "${cache_dir}/server"
+        ls -lh ${cache_dir}
+
+        export jwt=$(kubectl get secret -n {{ .auth_namespace }} {{ .auth_sa }} -o go-template='{{`{{ .data.token }}`}}' | base64 -d)
+        echo jwt=${jwt}
+
+        # # see: https://www.vaultproject.io/docs/auth/kubernetes
+        # # disable_iss_validation by default - to backport existing auth endpoints explicitly turn it off
+        # cache_dir=${tmp_dir_root}/{{ .cluster_id }}
+        set -x
+        vault write {{ .vault_auth_endpoint }} \
+          kubernetes_host=$(cat ${cache_dir}/server) \
+          token_reviewer_jwt="${jwt}" \
+          kubernetes_ca_cert="@${cache_dir}/ca" \
+          disable_iss_validation=true
+        echo all done
+
   run_oidc_client:
     desc: "Read client secret"
     vars:
