@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: vso
+spec:
+  template:
+    metadata:
+      name: 'vso-{{ name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/hashicorp/vault-secrets-operator.git
+        targetRevision: v0.9.0
+        path: chart
+        helm:
+          values: |
+            defaultVaultConnection:
+              enabled: true
+              address: https://vault-ui.vault.svc
+              skipTLSVerify: true
+          releaseName: vso
+      destination:
+        name: '{{ name }}'
+        namespace: argo-workflows
+      syncPolicy:
+        automated:
+          prune: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
