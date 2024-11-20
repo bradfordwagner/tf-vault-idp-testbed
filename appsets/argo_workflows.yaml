@@ -3,9 +3,10 @@ kind: ApplicationSet
 metadata:
   name: argo-workflows
 spec:
+  goTemplate: true
   template:
     metadata:
-      name: 'argo-workflows-{{ name }}'
+      name: 'argo-workflows-{{ .name }}'
     spec:
       project: default
       source:
@@ -13,14 +14,22 @@ spec:
         targetRevision: argo-workflows-0.42.7
         path: charts/argo-workflows
         helm:
-          # parameters:
-          #   - name: namespaces
-          #     value: "{{ values.namespaces }}"
           releaseName: argo-workflows
           values: |
-
+            # server:
+            #   authModes: [sso]
+            #   sso:
+            #     enabled: true
+            #     issuer: https://vault-ui.vault.svc/v1/identity/oidc/provider/my-provider
+            #     clientId:
+            #       name: oidc-client
+            #       key: client_id
+            #     clientSecret:
+            #       name: oidc-client
+            #       key: client_secret
+            #     redirectUrl: http://argo-workflows-server.argo-workflows:2746/oauth2/callback
       destination:
-        name: '{{ name }}'
+        name: '{{ .name }}'
         namespace: argo-workflows
       syncPolicy:
         automated:

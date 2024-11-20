@@ -21,7 +21,8 @@ spec:
           releaseName: vso
       destination:
         name: '{{ name }}'
-        namespace: argo-workflows
+        # namespace: argo-workflows
+        namespace: vault-auth
       syncPolicy:
         automated:
           prune: true

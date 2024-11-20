@@ -8,10 +8,10 @@ EOT
 }
 
 # read any oidc client
-resource "vault_policy" "oidc_client" {
-  name   = "oidc_client"
+resource "vault_policy" "argo_workflows_oidc_client" {
+  name   = "argo_workflows_oidc_client"
   policy = <<EOT
-path "identity/oidc/client/*" {
+path "identity/oidc/client/argo-workflows" {
   capabilities = ["read"]
 }
 EOT

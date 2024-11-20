@@ -6,7 +6,7 @@ metadata:
 spec:
   method: kubernetes
   mount: kubernetes/client_cluster
-  vaultConnectionRef: default
+  vaultConnectionRef: vault-auth/default
   kubernetes:
     role: argo_oidc_client
     serviceAccount: argo-workflows-server
