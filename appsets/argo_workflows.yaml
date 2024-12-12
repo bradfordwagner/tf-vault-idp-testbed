@@ -16,18 +16,18 @@ spec:
         helm:
           releaseName: argo-workflows
           values: |
-            # server:
-            #   authModes: [sso]
-            #   sso:
-            #     enabled: true
-            #     issuer: https://vault-ui.vault.svc/v1/identity/oidc/provider/my-provider
-            #     clientId:
-            #       name: oidc-client
-            #       key: client_id
-            #     clientSecret:
-            #       name: oidc-client
-            #       key: client_secret
-            #     redirectUrl: http://argo-workflows-server.argo-workflows:2746/oauth2/callback
+            server:
+              authModes: [sso]
+              sso:
+                enabled: true
+                issuer: https://vault-ui.vault.svc/v1/identity/oidc/provider/my-provider
+                clientId:
+                  name: oidc-client
+                  key: client_id
+                clientSecret:
+                  name: oidc-client
+                  key: client_secret
+                redirectUrl: http://argo-workflows-server.argo-workflows:2746/oauth2/callback
       destination:
         name: '{{ .name }}'
         namespace: argo-workflows
