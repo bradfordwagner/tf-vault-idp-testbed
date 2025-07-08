@@ -94,11 +94,12 @@ tasks:
         echo "client_id: ${client_id}"
         echo "client_secret: ${client_secret}"
         echo res:
-        echo ${res} | jq
+        echo ${res} | qq
 
         # this is the build of https://github.com/dexidp/dex/tree/master/examples/example-app
         issuer=${VAULT_ADDR}/v1/identity/oidc/provider/{{ .provider }}
-        ~/tmp/dex/examples/oidc-client \
+        # from: https://github.com/bradfordwagner/idp_client.git
+        idp_client \
           --issuer=${issuer} \
           --client-id=${client_id} \
           --client-secret=${client_secret}

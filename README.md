@@ -2,20 +2,21 @@
 
 ## Setup
 ```bash
+vault_group=argo_admins # if you want access to the vault UI
+aad_group_name='' # group in aad
+allowed_redirect_uri=${vault_addr}/ui/vault/auth/oidc/oidc/callback
+azure_tenant_id='' # tenant id of your azure active directory
 cat <<EOF > oidc.auth.yaml
 enabled: true
 client:
   id: ...
   secret: ...
 discovery:
-  url: https://login.microsoftonline.com/.../v2.0
+  url: https://login.microsoftonline.com/${azure_tenant_id}/v2.0
   ca_file_path: ...
 
-issuer_host: ...
-
 allowed_redirect_uris:
-  - ...
-  - ...
+  - ${allowed_redirect_uri}
 
 default_role: my_oidc_role
 roles:
