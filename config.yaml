@@ -17,6 +17,15 @@ users:
     password: smokesalot
 
 groups:
+  all_users:
+    type: external
+    entity_names: []
+    policies: []
+  vault_ui:
+    type: external
+    entity_names: []
+    policies:
+      - ui
   argo_admins:
     type: external
     entity_names: []

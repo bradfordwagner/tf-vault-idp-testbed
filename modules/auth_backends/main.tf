@@ -42,7 +42,7 @@ resource "vault_jwt_auth_backend_role" "vault-oidc-role" {
   allowed_redirect_uris = var.oidc.allowed_redirect_uris
 
   # ensure that the user is a member of the group
-  bound_claims         = { "roles" : each.value.idp_group }
+  # bound_claims         = { "roles" : each.value.idp_group }
   verbose_oidc_logging = true
 }
 

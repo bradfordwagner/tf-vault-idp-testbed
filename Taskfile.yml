@@ -103,3 +103,19 @@ tasks:
           --issuer=${issuer} \
           --client-id=${client_id} \
           --client-secret=${client_secret}
+  keycloak_client:
+    desc: "Read client secret"
+    vars:
+      client_id: '{{ default .client_id "adpe-argo-workflows" }}'
+      client_secret: '{{ .client_secret }}'
+      provider: '{{ default .provider "my-provider" }}'
+    env:
+      client_id: "{{ .client_id }}"
+      client_secret: "{{ .client_secret }}"
+      keycloak_issuer: "http://localhost:8180/realms/adpe-argo-workflows"
+    cmds:
+      - |
+        idp_client \
+          --issuer=${keycloak_issuer} \
+          --client-id=${client_id} \
+          --client-secret=${client_secret}
