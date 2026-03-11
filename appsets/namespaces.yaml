@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: namespaces
+spec:
+  template:
+    metadata:
+      name: 'namespaces-{{ name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/bradfordwagner/chart-namespaces.git
+        targetRevision: 2.1.0
+        path: .
+        helm:
+          parameters:
+            - name: namespaces
+              value: "{{ values.namespaces }}"
+          releaseName: namespaces
+      destination:
+        name: '{{ name }}'
+        namespace: argo-workflows
+      syncPolicy:
+        automated:
+          prune: true
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            argocd.argoproj.io/secret-type: cluster
+        values:
+          namespaces: >
+            argo-workflows
+            vault-auth

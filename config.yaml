@@ -1,0 +1,95 @@
+entities:
+  bob:
+    policies:
+      - default
+    metadata:
+      email: bob@barker.com
+  sir:
+    policies:
+      - default
+    metadata:
+      email: sir@smokesalot.com
+
+users:
+  bob:
+    password: barker
+  sir:
+    password: smokesalot
+
+groups:
+  all_users:
+    type: external
+    entity_names: []
+    policies: []
+  vault_ui:
+    type: external
+    entity_names: []
+    policies:
+      - ui
+  argo_admins:
+    type: external
+    entity_names: []
+      # - bob
+    policies:
+      - ui
+  chumps:
+    type: external
+    policies:
+      - default
+      - chump
+    entity_names: []
+      # - sir
+
+kubernetes:
+  cluster:
+    auth_endpoint: kubernetes/client_cluster
+    default_lease_ttl: 60s
+  roles:
+    argo_oidc_client:
+      kubernetes:
+        service_account_names:
+          - argo-workflows-server
+        namespaces:
+          - argo-workflows
+      token_policies:
+        - argo_workflows_oidc_client
+
+oidc:
+  clients:
+    sample-client:
+      # this should probably be a template for clients to expand
+      # think about dns names, etc to cover all regions
+      redirect_uris:
+        # oidc-client callback (dex example-app)
+        - "http://127.0.0.1:5555/callback"
+      allowed_groups:
+        - argo_admins
+    argo-workflows:
+      # this should probably be a template for clients to expand
+      # think about dns names, etc to cover all regions
+      redirect_uris:
+        - "http://argo-workflows-server.argo-workflows:2746/oauth2/callback"
+      allowed_groups:
+        - argo_admins
+  providers:
+    my-provider:
+      clients:
+        - sample-client
+      scopes:
+        - debug
+        - groups
+  scopes:
+    debug:
+      description: debug claims
+      template: |
+        {
+          "debug": {
+            "entity_name": {{identity.entity.name}},
+            "email": {{identity.entity.metadata.email}},
+            "groups": {{identity.entity.groups.names}}
+          }
+        }
+    groups:
+      description: Vault OIDC Groups Scope
+      template: |
+        { "groups": {{identity.entity.groups.names}} }

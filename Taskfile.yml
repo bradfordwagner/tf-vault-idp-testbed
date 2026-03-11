@@ -1,0 +1,121 @@
+# https://taskfile.dev
+
+version: '3'
+
+env:
+  VAULT_ADDR:
+    sh: cat ~/.vault-addr
+  VAULT_TOKEN:
+    sh: cat ~/.vault-root-token
+  KUBECONFIG:
+    sh: cat ~/.vault-kubeconfig
+
+tasks:
+  clear:
+    internal: true
+    cmds: [clear]
+  clean:
+    cmds: [rm -rf .terraform* planfile terraform.tfstate* out.json jit.auto.tfvars]
+  tf_init:
+    deps: [clear]
+    cmds: [terraform init]
+  tf_plan:
+    # deps: [tf_init]
+    cmds:
+      - |
+        # run terraform plan
+        terraform plan -out=planfile -var vault_addr=${VAULT_ADDR}
+  tf_apply:
+    cmds:
+      - task: tf_plan
+      - terraform apply "planfile"
+  tf_destroy:
+    deps: [clear]
+    cmds:
+      - terraform destroy -auto-approve -var vault_addr=${VAULT_ADDR}
+  default:
+    deps: [tf_plan]
+  status:
+    cmds:
+      - vault status | jq
+      - kubectl get po
+
+  read_well_known:
+    vars:
+      provider: '{{ default .provider "my-provider" }}'
+    cmds:
+      - |
+        vault read identity/oidc/provider/{{ .provider }}/.well-known/openid-configuration | jq
+  vault_auth:
+    desc: "Initialize vault auth on the target ~/.vault-kubeconfig"
+    vars:
+      cluster_id: client_cluster
+      auth_namespace: vault-auth
+      auth_sa: vault-auth
+      vault_auth_endpoint: auth/kubernetes/client_cluster/config
+    cmds:
+      - |
+        tmp_dir_root=$(mktemp -d)
+        echo tmp_dir_root=${tmp_dir_root}
+        cache_dir=${tmp_dir_root}/{{ .cluster_id }}
+        mkdir -p ${cache_dir}
+
+        kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 -d > "${cache_dir}/ca"
+        kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.server}' > "${cache_dir}/server"
+
+        # this is a hack to get local working
+        echo https://kubernetes.default.svc.cluster.local > "${cache_dir}/server"
+        ls -lh ${cache_dir}
+
+        export jwt=$(kubectl get secret -n {{ .auth_namespace }} {{ .auth_sa }} -o go-template='{{`{{ .data.token }}`}}' | base64 -d)
+        echo jwt=${jwt}
+
+        # # see: https://www.vaultproject.io/docs/auth/kubernetes
+        # # disable_iss_validation by default - to backport existing auth endpoints explicitly turn it off
+        # cache_dir=${tmp_dir_root}/{{ .cluster_id }}
+        set -x
+        vault write {{ .vault_auth_endpoint }} \
+          kubernetes_host=$(cat ${cache_dir}/server) \
+          token_reviewer_jwt="${jwt}" \
+          kubernetes_ca_cert="@${cache_dir}/ca" \
+          disable_iss_validation=true
+        echo all done
+
+  run_oidc_client:
+    desc: "Read client secret"
+    vars:
+      client_id: '{{ default .client_id "sample-client" }}'
+      provider: '{{ default .provider "my-provider" }}'
+    cmds:
+      - |
+        res=$(vault read -format=json identity/oidc/client/{{ .client_id }} | jq)
+        client_id=$(echo ${res} | jq  '.data.client_id' -r)
+        client_secret=$(echo ${res} | jq  '.data.client_secret' -r)
+        echo "client_id: ${client_id}"
+        echo "client_secret: ${client_secret}"
+        echo res:
+        echo ${res} | qq
+
+        # this is the build of https://github.com/dexidp/dex/tree/master/examples/example-app
+        issuer=${VAULT_ADDR}/v1/identity/oidc/provider/{{ .provider }}
+        # from: https://github.com/bradfordwagner/idp_client.git
+        idp_client \
+          --issuer=${issuer} \
+          --client-id=${client_id} \
+          --client-secret=${client_secret}
+  keycloak_client:
+    desc: "Read client secret"
+    vars:
+      client_id: '{{ default .client_id "adpe-argo-workflows" }}'
+      client_secret: '{{ .client_secret }}'
+      provider: '{{ default .provider "my-provider" }}'
+    env:
+      client_id: "{{ .client_id }}"
+      client_secret: "{{ .client_secret }}"
+      keycloak_issuer: "http://localhost:8180/realms/adpe-argo-workflows"
+    cmds:
+      - |
+        idp_client \
+          --issuer=${keycloak_issuer} \
+          --client-id=${client_id} \
+          --client-secret=${client_secret}
